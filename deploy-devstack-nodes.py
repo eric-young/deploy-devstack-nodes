@@ -114,7 +114,7 @@ def run_postinstall(ipaddr, args):
     if args.DEVSTACK or args.TEMPEST_CINDER or args.TEMPEST_NOVA:
         _commands.append('cd /git/devstack; ./stack.sh')
 
-    node_execute_multiple(ipaddr, args.VM_USERNAME, args.VM_PASSWORD, _commands)
+    node_execute_multiple(ipaddr, 'stack', 'stack', _commands)
 
 
 def run_postinstall_services_only(ipaddr, args):
@@ -131,7 +131,7 @@ def run_postinstall_services_only(ipaddr, args):
         _commands.append("source /git/devstack/openrc admin && "
                          "/git/devstack-tools/bin/run-tempest-nova")
 
-    node_execute_multiple(ipaddr, args.VM_USERNAME, args.VM_PASSWORD, _commands)
+    node_execute_multiple(ipaddr, 'stack', 'stack', _commands)
 
 def main():
     """
