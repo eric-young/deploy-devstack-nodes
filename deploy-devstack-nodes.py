@@ -94,10 +94,10 @@ def setup_devstack(ipaddr, args):
 
     _commands = []
     _commands.append('uptime')
+    _commands.append('cd /; mkdir git; chmod -R 777 /git')
     _commands.append("echo \'" + _all_env + "'\ | sort > /git/devstack.environment")
     _commands.append("( apt-get update && apt-get install -y git ) || yum install -y git")
-    _commands.append("cd /; mkdir git; chmod -R 777 /git; "
-                     "cd /git; git clone https://github.com/eric-young/devstack-tools.git")
+    _commands.append("cd /git; git clone https://github.com/eric-young/devstack-tools.git")
     _commands.append("cd /git/devstack-tools; source /git/devstack.environment; "
                      "bin/setup-devstack " + ipaddr + " " + args.VM_IP[0])
 
