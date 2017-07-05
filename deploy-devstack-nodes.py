@@ -7,6 +7,9 @@ import time
 import ssl
 from ssh import ssh
 
+class CommandFailedException(Exception):
+    def __init__(self, command):
+        Exception.__init__(self, command)
 
 def setup_arguments():
     parser = argparse.ArgumentParser(description='Clone and configure a VM')
@@ -68,12 +71,15 @@ def node_execute_command(ipaddr, username, password, command, numTries=60):
     """
     print("Executing Command against %s: %s" % (ipaddr, command))
     connection = ssh(ipaddr, username, password, numTries=numTries)
-    output = connection.sendCommand(command, showoutput=True)
-    return
+    rc, output = connection.sendCommand(command, showoutput=True)
+    return rc, output
 
 def node_execute_multiple(ipaddr, username, password, commands):
     for cmd in commands:
-        node_execute_command(ipaddr, username, password, cmd)
+        rc, output = node_execute_command(ipaddr, username, password, cmd)
+        if rc is not 0:
+            print("error running: [%s] %s" % (ipaddr, command))
+            raise CommandFailedException(command)
 
 def setup_devstack(ipaddr, args):
     """
