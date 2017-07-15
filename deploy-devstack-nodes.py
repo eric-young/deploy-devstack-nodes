@@ -78,8 +78,8 @@ def node_execute_multiple(ipaddr, username, password, commands):
     for cmd in commands:
         rc, output = node_execute_command(ipaddr, username, password, cmd)
         if rc is not 0:
-            print("error running: [%s] %s" % (ipaddr, command))
-            raise CommandFailedException(command)
+            print("error running: [%s] %s" % (ipaddr, cmd))
+            raise CommandFailedException(cmd)
 
 def setup_devstack(ipaddr, args):
     """
