@@ -23,7 +23,7 @@ def setup_arguments():
                         default='password', help='VM password, default is \"password\"')
 
     # setup options
-    parser.add_argument('--devstack-tools-branch', dest='DEVSTACK_TOOLS_BRANCH', action='store',
+    parser.add_argument('--devstack_tools_branch', dest='DEVSTACK_TOOLS_BRANCH', action='store',
                         default='master',
                         help='devstack-tools branch. Default is  \"master\"')
 
