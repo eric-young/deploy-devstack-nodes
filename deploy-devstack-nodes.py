@@ -59,6 +59,8 @@ def setup_arguments():
                         default='Scaleio123', help='SIO Password, default is \"Scaleio123\"')
     parser.add_argument('--cinder_sio_gateway', dest='CINDER_SIO_GATEWAY', action='store', required=True,
                         help='SIO Gateway address')
+    parser.add_argument('--cinder_sio_gatewayport', dest='CINDER_SIO_GATEWAYPORT', action='store',
+                        default='443', help='SIO Gateway port, default is 443')
     parser.add_argument('--cinder_sio_pd', dest='CINDER_SIO_PD', action='store',
                         default='default', help='SIO Protection Domain, default is \"default\"')
     parser.add_argument('--cinder_sio_sp', dest='CINDER_SIO_SP', action='store',
