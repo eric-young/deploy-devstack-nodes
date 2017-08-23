@@ -66,8 +66,9 @@ def setup_arguments():
     parser.add_argument('--cinder_sio_sp', dest='CINDER_SIO_SP', action='store',
                         default='default', help='SIO Storage Pool, default is \"default\"')
     parser.add_argument('--cinder_sio_mdm_ips', dest='CINDER_SIO_MDM_IPS', action='store', required=True,
-                        help='SIO MDM IP addresses (comma delimted)')
-
+                        help='SIO MDM IP addresses (comma delimited)')
+    parser.add_argument('--cinder_sio_pools', dest='CINDER_SIO_POOLS', action='store',
+                        help='SIO Storage Pools (comma delimited)')
 
     # return the parser object
     return parser
