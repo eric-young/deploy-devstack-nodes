@@ -115,6 +115,11 @@ def setup_devstack(ipaddr, args):
                      "-b " + args.DEVSTACK_TOOLS_BRANCH)
     _commands.append("cd /git/devstack-tools; source /git/devstack.environment; "
                      "bin/setup-devstack " + ipaddr + " " + args.VM_IP[0])
+    # make sure the firewall is off
+    _commands.append('systemctl stop firewalld || true')
+    _commands.append('systemctl disable firewalld || true')
+    _commands.append('systemctl stop iptables || true')
+    _commands.append('systemctl disable iptables || true')
 
     node_execute_multiple(ipaddr, args.VM_USERNAME, args.VM_PASSWORD, _commands)
 
