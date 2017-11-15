@@ -122,8 +122,10 @@ def setup_devstack(ipaddr, args):
     _commands.append('systemctl enable iptables || true')
     _commands.append('systemctl stop firewalld || true')
     _commands.append('systemctl start iptables || true')
+    # open the ports in iptables for scaleio
     for p in [6611, 9011, 7072, 80, 443, 9099]:
-        _commands.append('iptables -I INPUT 1 -p tcp --dport {} -j ACCEPT'.format(p))
+        c = 'iptables -I INPUT 1 -p tcp --dport {} -j ACCEPT || true'.format(p)
+        _commands.append(c)
     _commands.append('service iptables save || true')
 
     node_execute_multiple(ipaddr, args.VM_USERNAME, args.VM_PASSWORD, _commands)
