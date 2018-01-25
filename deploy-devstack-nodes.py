@@ -11,6 +11,26 @@ class CommandFailedException(Exception):
     def __init__(self, command):
         Exception.__init__(self, command)
 
+def sles_only_command(command):
+    platform_specific="if [ -f /etc/SuSE-release ]; then {}; fi".format(command)
+    return platform_specific
+
+def ubuntu_only_command(command):
+    platform_specific="if [ -f /etc/lsb-release ]; then {}; fi".format(command)
+    return platform_specific
+
+def centos_or_redhat_only_command(command):
+    platform_specific="if [ -f /etc/centos-release -o -f /etc/redhat-release ]; then {}; fi".format(command)
+    return platform_specific
+
+def centos_only_command(command):
+    platform_specific="if [ -f /etc/centos-release ]; then {}; fi".format(command)
+    return platform_specific
+
+def redhat_only_command(command):
+    platform_specific="if [ -f /etc/redhat-release ]; then {}; fi".format(command)
+    return platform_specific
+
 def setup_arguments():
     parser = argparse.ArgumentParser(description='Clone and configure a VM')
 
@@ -110,23 +130,29 @@ def setup_devstack(ipaddr, args):
     _commands.append('uptime')
     _commands.append('cd /; mkdir git; chmod -R 777 /git')
     _commands.append("echo \'" + _all_env + "'\ | sort > /git/devstack.environment")
-    _commands.append("( apt-get update && apt-get install -y git ) || yum install -y git")
+    _commands.append(ubuntu_only_command("apt-get update && apt-get install -y git"))
+    _commands.append(centos_or_redhat_only_command("yum install -y git"))
     _commands.append("cd /git; git clone https://github.com/eric-young/devstack-tools.git "
                      "-b " + args.DEVSTACK_TOOLS_BRANCH)
     _commands.append("cd /git/devstack-tools; source /git/devstack.environment; "
                      "bin/setup-devstack " + ipaddr + " " + args.VM_IP[0])
     # configure the firewall so devstack can work with it
+    _commands.append(centos_only_command('systemctl disable firewalld'))
+    _commands.append(centos_only_command('systemctl stop firewalld'))
     # from https://docs.openstack.org/devstack/latest/guides/neutron.html
-    _commands.append('service iptables save || true')
-    _commands.append('systemctl disable firewalld || true')
-    _commands.append('systemctl enable iptables || true')
-    _commands.append('systemctl stop firewalld || true')
-    _commands.append('systemctl start iptables || true')
+    """
+    _commands.append(centos_only_command('yum install -y iptables'))
+    _commands.append(centos_only_command('iptables-save'))
+    _commands.append(centos_only_command('systemctl disable firewalld'))
+    _commands.append(centos_only_command('systemctl enable iptables'))
+    _commands.append(centos_only_command('systemctl stop firewalld'))
+    _commands.append(centos_only_command('systemctl start iptables'))
     # open the ports in iptables for scaleio
     for p in [6611, 9011, 7072, 80, 443, 9099]:
         c = 'iptables -I INPUT 1 -p tcp --dport {} -j ACCEPT || true'.format(p)
-        _commands.append(c)
-    _commands.append('service iptables save || true')
+        _commands.append(centos_only_command(c))
+    _commands.append(centos_only_command('service iptables save'))
+    """
 
     node_execute_multiple(ipaddr, args.VM_USERNAME, args.VM_PASSWORD, _commands)
 
