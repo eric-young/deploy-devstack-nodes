@@ -5,7 +5,8 @@ import argparse
 import sys
 import time
 import ssl
-from ssh import ssh
+
+from ssh_paramiko import RemoteServer
 
 class CommandFailedException(Exception):
     def __init__(self, command):
@@ -93,21 +94,50 @@ def setup_arguments():
     # return the parser object
     return parser
 
-def node_execute_command(ipaddr, username, password, command, numTries=60):
+def node_execute_command(ipaddr, username, password, command, numTries=5):
     """
     Execute a command via ssh
     """
-    print("Executing Command against %s: %s" % (ipaddr, command))
-    connection = ssh(ipaddr, username, password, numTries=numTries)
-    rc, output = connection.sendCommand(command, showoutput=True)
-    return rc, output
+    attempt=1
+    connected = False
+
+
+    while (attempt<=numTries and connected==False):
+        ssh = RemoteServer(None,
+                           username=username,
+                           password=password,
+                           log_folder='/tmp',
+                           server_has_dns=False)
+        print("Connecting to: %s" % (ipaddr))
+
+        try:
+            connected, err = ssh.connect_server(ipaddr, ping=False)
+        except Exception as e:
+            print("Unable to connect. Will try again.")
+            connected = False
+
+        if connected == False:
+            time.sleep(5)
+            attempt = attempt + 1
+
+    if connected == False:
+        raise UnableToConnectException(ipaddr)
+
+    print("Executing Command: %s" % (command))
+    rc, stdout, stderr = ssh.execute_cmd(command, timeout=None)
+    ssh.close_connection()
+
+    stdout = stdout.strip()
+    stderr = stderr.strip()
+
+    if rc is True:
+        print("%s" % stdout)
+
+    return rc, stdout
 
 def node_execute_multiple(ipaddr, username, password, commands):
     for cmd in commands:
         rc, output = node_execute_command(ipaddr, username, password, cmd)
-        if rc is not 0:
-            print("error running: [%s] %s" % (ipaddr, cmd))
-            raise CommandFailedException(cmd)
 
 def setup_devstack(ipaddr, args):
     """
