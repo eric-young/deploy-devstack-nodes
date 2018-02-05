@@ -90,6 +90,8 @@ def setup_arguments():
                         help='SIO MDM IP addresses (comma delimited)')
     parser.add_argument('--cinder_sio_pools', dest='CINDER_SIO_POOLS', action='store',
                         help='SIO Storage Pools (comma delimited)')
+    parser.add_argument('--sdc_location', dest='SDC_LOCATION', action='store',
+                        help='URL to retrieve SDC installation from')
 
     # return the parser object
     return parser
