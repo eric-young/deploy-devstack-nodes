@@ -160,6 +160,11 @@ def setup_devstack(ipaddr, args):
 
     _commands = []
     _commands.append('uptime')
+    # On CentOS, upgrade setup-tools and pip to latest
+    _commands.append(centos_only_command('yum -y remove python-setuptools'))
+    _commands.append(centos_only_command('curl https://bootstrap.pypa.io/ez_setup.py | python'))
+    _commands.append(centos_only_command('curl https://bootstrap.pypa.io/get-pip.py | python'))
+
     _commands.append('cd /; mkdir git; chmod -R 777 /git')
     _commands.append("echo \'" + _all_env + "'\ | sort > /git/devstack.environment")
     _commands.append(ubuntu_only_command("apt-get update && apt-get install -y git"))
@@ -171,6 +176,7 @@ def setup_devstack(ipaddr, args):
     # configure the firewall so devstack can work with it
     _commands.append(centos_only_command('systemctl disable firewalld'))
     _commands.append(centos_only_command('systemctl stop firewalld'))
+
     # from https://docs.openstack.org/devstack/latest/guides/neutron.html
     """
     _commands.append(centos_only_command('yum install -y iptables'))
